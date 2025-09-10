@@ -1,3 +1,4 @@
+from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 
 from selenium import webdriver
@@ -5,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import ActionChains
 import pandas as pd
+from selenium.webdriver.support.wait import WebDriverWait
 
 # item = input("Enter Item Name: ")
 
@@ -94,6 +96,25 @@ duplicated_values = combined_df[combined_df.duplicated(subset=['product_name', '
 products_in_at_least_two_tables = duplicated_values.drop_duplicates(subset=['product_name', 'product_price'])
 
 products_in_at_least_two_tables.to_csv('commom_products_tables.csv', index=False, encoding='utf-8-sig', sep=";")
+
+for index, row in products_in_at_least_two_tables.iterrows():
+    sleep(2)
+
+    # Aguardar o elemento existir antes de tentar usar
+    search_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.ID, "searchInput"))
+    )
+
+    search_input.clear()
+    search_input.send_keys(row['product_name'])
+    sleep(3)
+    search_input.send_keys(Keys.ENTER)
+
+    # Aguardar o card aparecer antes de tentar clicar
+    card = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, "//a[@data-testid='product-card::card']"))
+    )
+    card.click()
 
 
 
