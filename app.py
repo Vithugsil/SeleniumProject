@@ -1,4 +1,5 @@
 from time import sleep
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -9,7 +10,7 @@ import pandas as pd
 
 most_relevant_products = []
 lowest_price_products = []
-biggest_price_products = []
+best_rated_products = []
 
 zoom_url = "https://www.zoom.com.br/"
 driver = webdriver.Edge()
@@ -17,6 +18,7 @@ driver.get(zoom_url)
 driver.maximize_window()
 
 # clicando no span dos cookies
+sleep(1)
 cookie_span = driver.find_element(By.XPATH, "//span[contains(text(), 'Concordar')]")
 cookie_span.click()
 
@@ -30,20 +32,22 @@ search_input.send_keys(Keys.ENTER)
 # modal_close_button = driver.find_element(By.XPATH, "//span[@class='ModalCampaign_CloseButton__LDTLX']/button")
 # modal_close_button.click()
 
-# modificanco a quantidade de items por pagina
-hits_per_page = driver.find_element(By.XPATH, "//select[@data-testid='hits-per-page-select']")
-hits_per_page.click()
-
-# colocando o maximo de items por pagina
-options = hits_per_page.find_elements(By.XPATH, ".//option")
-last_option = options[-1]
-last_option.click()
+# # modificanco a quantidade de items por pagina
+# hits_per_page = driver.find_element(By.XPATH, "//select[@data-testid='hits-per-page-select']")
+# hits_per_page.click()
+#
+# # colocando o maximo de items por pagina
+# options = hits_per_page.find_elements(By.XPATH, ".//option")
+# last_option = options[-1]
+# last_option.click()
 
 for option in range(3):
     # sao tres por que representa as paginas
     select_order_by = driver.find_element(By.XPATH, "//select[@data-testid='select-order-by']")
     select_order_by.click()
     order_by_options = select_order_by.find_elements(By.XPATH, ".//option")
+    if option == 2:
+        option += 1
     order_by_options[option].click()
     for idx in range(3):
         sleep(1.2)
@@ -59,7 +63,7 @@ for option in range(3):
                 case 1:
                     lowest_price_products.append({'product_name': product_name, 'product_price': product_price})
                 case 2:
-                    biggest_price_products.append({'product_name': product_name, 'product_price': product_price})
+                    best_rated_products.append({'product_name': product_name, 'product_price': product_price})
 
         # tempo pra carregar os elementos
         sleep(1.2)
@@ -74,16 +78,28 @@ for option in range(3):
     ActionChains(driver).click(go_to_first_page).perform()
     go_to_first_page.click()
 
-driver.quit()
+
 
 # parte do pandas
 dt_most_relevant_products = pd.DataFrame(most_relevant_products)
 dt_lowest_price_products = pd.DataFrame(lowest_price_products)
-dt_biggest_price_products = pd.DataFrame(biggest_price_products)
-
-dt_intersection = dt_most_relevant_products.merge(dt_lowest_price_products, how='inner').merge(dt_biggest_price_products, how='inner')
+dt_best_rated_products = pd.DataFrame(best_rated_products)
 
 dt_most_relevant_products.to_csv('most_relevant_products.csv', index=False, encoding='utf-8-sig', sep=";")
 dt_lowest_price_products.to_csv('lowest_price_products.csv', index=False, encoding='utf-8-sig', sep=";")
-dt_biggest_price_products.to_csv('biggest_price_products.csv', index=False, encoding='utf-8-sig', sep=";")
-dt_intersection.to_csv('intersection.csv', index=False, encoding='utf-8-sig', sep=";")
+dt_best_rated_products.to_csv('best_rated_products.csv', index=False, encoding='utf-8-sig', sep=";")
+
+combined_df = pd.concat([dt_best_rated_products,dt_most_relevant_products, dt_lowest_price_products])
+duplicated_values = combined_df[combined_df.duplicated(subset=['product_name', 'product_price'], keep=False)]
+products_in_at_least_two_tables = duplicated_values.drop_duplicates(subset=['product_name', 'product_price'])
+
+products_in_at_least_two_tables.to_csv('commom_products_tables.csv', index=False, encoding='utf-8-sig', sep=";")
+
+# for index, row in products_in_at_least_two_tables.iterrows():
+#     search_input = driver.find_element(By.ID, "searchInput")
+#     search_input.
+#     search_input.send_keys(row['product_name'])
+#     search_input.send_keys(Keys.c)
+
+
+
