@@ -13,7 +13,7 @@ lowest_price_products = []
 best_rated_products = []
 
 zoom_url = "https://www.zoom.com.br/"
-driver = webdriver.Edge()
+driver = webdriver.Chrome()
 driver.get(zoom_url)
 driver.maximize_window()
 
@@ -73,7 +73,7 @@ for option in range(3):
         ActionChains(driver).scroll_to_element(next_page).perform()
         next_page.click()
 
-    sleep(0.5)
+    sleep(0.8)
     go_to_first_page = driver.find_element(By.XPATH, "//li[@data-testid='page-1']/a")
     ActionChains(driver).click(go_to_first_page).perform()
     go_to_first_page.click()
@@ -94,12 +94,6 @@ duplicated_values = combined_df[combined_df.duplicated(subset=['product_name', '
 products_in_at_least_two_tables = duplicated_values.drop_duplicates(subset=['product_name', 'product_price'])
 
 products_in_at_least_two_tables.to_csv('commom_products_tables.csv', index=False, encoding='utf-8-sig', sep=";")
-
-# for index, row in products_in_at_least_two_tables.iterrows():
-#     search_input = driver.find_element(By.ID, "searchInput")
-#     search_input.
-#     search_input.send_keys(row['product_name'])
-#     search_input.send_keys(Keys.c)
 
 
 
