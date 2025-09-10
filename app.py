@@ -26,9 +26,9 @@ search_input.send_keys('teclado')
 search_input.send_keys(Keys.ENTER)
 
 #modal
-sleep(1)
-modal_close_button = driver.find_element(By.XPATH, "//span[@class='ModalCampaign_CloseButton__LDTLX']/button")
-modal_close_button.click()
+# sleep(1.5)
+# modal_close_button = driver.find_element(By.XPATH, "//span[@class='ModalCampaign_CloseButton__LDTLX']/button")
+# modal_close_button.click()
 
 # modificanco a quantidade de items por pagina
 hits_per_page = driver.find_element(By.XPATH, "//select[@data-testid='hits-per-page-select']")
@@ -45,8 +45,8 @@ for option in range(3):
     select_order_by.click()
     order_by_options = select_order_by.find_elements(By.XPATH, ".//option")
     order_by_options[option].click()
-    sleep(1)
     for idx in range(3):
+        sleep(1.2)
         products_details = driver.find_elements(By.XPATH, ".//div[@data-testid='product-card::description']")
 
         for product in products_details:
@@ -62,7 +62,7 @@ for option in range(3):
                     biggest_price_products.append({'product_name': product_name, 'product_price': product_price})
 
         # tempo pra carregar os elementos
-        sleep(1)
+        sleep(1.2)
         # botao de proxima pagina
         next_page = driver.find_element(By.XPATH, "//li[@data-testid='page-next']/a")
         # Acao para scrollar ate o elemento e ai entao clicar nele, se nao fizer isso ele nao encontra o elemento
